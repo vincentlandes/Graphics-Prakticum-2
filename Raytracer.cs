@@ -19,7 +19,7 @@ namespace Template
 
         public static Ray[,] GetRays => ray;
         public static List<Primitive> Objects;
-        
+
 
 
         public struct Ray
@@ -31,13 +31,13 @@ namespace Template
 
 
         // initialize
-        public void Init() 
-	    {
-            
-	    }
-	    // tick: renders one frame
-	    public void Render()
-	    {
+        public void Init()
+        {
+
+        }
+        // tick: renders one frame
+        public void Render()
+        {
             screen.Clear(0);
 
             Objects = GetObjects;
@@ -47,25 +47,25 @@ namespace Template
             {
                 for (int x = 0; x < screen.width; x++)
                 {
-                    ray[x,y].t = 30;
+                    ray[x, y].t = 30;
                     ray[x, y].O = camera.CamPos;
-                    ray[x, y].D = screen.pos0 + (x * ((screen.pos1 - screen.pos0)/512)) + (y * ((screen.pos2 - screen.pos0)/512));
+                    ray[x, y].D = screen.pos0 + (x * ((screen.pos1 - screen.pos0) / 512)) + (y * ((screen.pos2 - screen.pos0) / 512));
                     //ray direction
                     ray[x, y].D = (ray[x, y].D - camera.CamPos).Normalized();
 
-                    if (x%50 == 0 && y == 0)
+                    if (x % 50 == 0 && y == 0)
                         screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray[x, y].D.X), CordzTrans(ray[x, y].D.Z), 0xffff00);
 
-                    for (int i = 0; i < Objects.Length; i++) //щ（ﾟДﾟщ）
+                    for (int i = 0; i < Objects.Count; i++) //щ（ﾟДﾟщ）<3 kjoet, munro. tenk joe *x* ^.^ :^)
                     {
-
+                        Objects[i].Intersection(ray[x, y]);
                     }
 
                 }
 
             }
 
-            
+
 
             //Draw Debug screen
             screenDebug.Line(0, 0, 0, 1024, 0xffffff);
@@ -107,7 +107,7 @@ namespace Template
         public int InvertyTrans(float y)
         {
             float yy;
-            yy = (y - 1024 + 150)/51.2f;
+            yy = (y - 1024 + 150) / 51.2f;
             return (int)yy;
         }
     }
