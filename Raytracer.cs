@@ -31,17 +31,21 @@ namespace Template
 	    {
             screen.Clear(0);
             Vector3[,] ray;
+            int length = 30;
             ray = new Vector3[screen.width, screen.height];
             //
             for (int y = 0; y < screen.height; y++)
             {
                 for (int x = 0; x < screen.width; x++)
                 {
-                    ray[x, y] = screen.pos0 + (x * (screen.pos1 - screen.pos0)) + (y * (screen.pos2 - screen.pos0));
+                    ray[x, y] = screen.pos0 + (x * ((screen.pos1 - screen.pos0)/512)) + (y * ((screen.pos2 - screen.pos0)/512));
                     //ray direction
-                    ray[x, y] = (ray[x, y] - camera.CamPos);
+                    ray[x, y] = (ray[x, y] - camera.CamPos).Normalized();
 
-                    screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray[x, y].X), CordzTrans(ray[x, y].Z), 0xffff00);
+                    ray[x, y] *= length;
+
+                    if (x%50 == 0 && y == 0)
+                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray[x, y].X), CordzTrans(ray[x, y].Z), 0xffff00);
                 }
             }
 
