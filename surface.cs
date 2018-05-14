@@ -43,20 +43,20 @@ namespace Template
 	{
 		public int width, height;
         int screenDebugSize = 1024;
-        public Vector3 pos1, pos2, pos3;
+        public Vector3 pos0, pos1, pos2;
 		public int [] pixels;
 		static bool fontReady = false;
 		static Surface font;
 		static int [] fontRedir;
         // surface constructor
-		public Surface( int w, int h, Vector3 _pos1, Vector3 _pos2, Vector3 _pos3)
+		public Surface( int w, int h, Vector3 _pos0, Vector3 _pos1, Vector3 _pos2)
 		{
 			width = w;
 			height = h;
 			pixels = new int[w * h];
+            pos0 = _pos0;
             pos1 = _pos1;
             pos2 = _pos2;
-            pos3 = _pos3;
 		}
         // surface constructor using a file
 		public Surface( string fileName )
@@ -239,7 +239,6 @@ namespace Template
         //draw sprhere met implicit form
         public void DrawSphere(Sphere sphere)
         {
-            int y = 0;
             for (int x = 0; x < screenDebugSize; x++)
             {
                 for (int z = 0; z < screenDebugSize; z++)
@@ -247,7 +246,7 @@ namespace Template
                     //(x-h)^2 + (y-k)^2 + (z-l)^2 = r^2
                     double var1 = (Math.Pow(x - CordxTrans(sphere.pos.X), 2) + Math.Pow(z - CordyTrans(sphere.pos.Z), 2));
                     double var2 = 5000;//Math.Pow(sphere.rad, 2);
-                    if (var1  == var2)
+                    if (var1  <= var2)
                     {
                         Plot(x, z, sphere.Color);
                     }

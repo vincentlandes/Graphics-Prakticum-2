@@ -28,7 +28,7 @@ namespace Template
             {
                 scene = new Scene(),
                 camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1)),
-                screen = new Surface(screenSize, screenSize, new Vector3(-5, 5, 2), new Vector3(5, 5, 2), new Vector3(5,-5,2)),
+                screen = new Surface(screenSize, screenSize, new Vector3(-5, 5, 2), new Vector3(5, 5, 2), new Vector3(-5,-5,2)),
                 screenDebug = new Surface(screenDebugSize, screenDebugSize, Vector3.Zero, Vector3.Zero, Vector3.Zero)
             };
             Sprite.target = raytracer.screen;
