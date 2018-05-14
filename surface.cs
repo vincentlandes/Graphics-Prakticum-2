@@ -4,7 +4,9 @@ using System.Drawing.Imaging;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
- 
+using template;
+using static template.Scene;
+
 namespace Template
 {
 	public class Sprite
@@ -40,16 +42,21 @@ namespace Template
 	public class Surface
 	{
 		public int width, height;
+        int screenDebugSize = 1024;
+        public Vector3 pos1, pos2, pos3;
 		public int [] pixels;
 		static bool fontReady = false;
 		static Surface font;
 		static int [] fontRedir;
         // surface constructor
-		public Surface( int w, int h )
+		public Surface( int w, int h, Vector3 _pos1, Vector3 _pos2, Vector3 _pos3)
 		{
 			width = w;
 			height = h;
 			pixels = new int[w * h];
+            pos1 = _pos1;
+            pos2 = _pos2;
+            pos3 = _pos3;
 		}
         // surface constructor using a file
 		public Surface( string fileName )
@@ -58,7 +65,7 @@ namespace Template
 			width = bmp.Width;
 			height = bmp.Height;
 			pixels = new int[width * height];
-			BitmapData data = bmp.LockBits( new Rectangle( 0, 0, width, height ), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
+			BitmapData data = bmp.LockBits( new Rectangle(0, 0, width, height ), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
 			IntPtr ptr = data.Scan0;
 			System.Runtime.InteropServices.Marshal.Copy( data.Scan0, pixels, 0, width * height );
 			bmp.UnlockBits( data );
@@ -228,5 +235,39 @@ namespace Template
 				}
 			}
 		}
-	}
+
+        //draw sprhere met implicit form
+        public void DrawSphere(Sphere sphere)
+        {
+            int y = 0;
+            for (int x = 0; x < screenDebugSize; x++)
+            {
+                for (int z = 0; z < screenDebugSize; z++)
+                {
+                    //(x-h)^2 + (y-k)^2 + (z-l)^2 = r^2
+                    double var1 = (Math.Pow(x - CordxTrans(sphere.pos.X), 2) + Math.Pow(z - CordyTrans(sphere.pos.Z), 2));
+                    double var2 = 5000;//Math.Pow(sphere.rad, 2);
+                    if (var1  == var2)
+                    {
+                        Plot(x, z, sphere.Color);
+                    }
+                }
+            }
+        }
+
+        public int CordxTrans(float x)
+        {
+            float xx;
+            xx = x * 51.2f + 512f;
+            return (int)xx;
+        }
+
+        public int CordyTrans(float y)
+        {
+            float yy;
+            yy = 1024 - (y * 51.2f) - 150;
+            return (int)yy;
+        }
+    }
 }
+

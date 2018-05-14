@@ -5,13 +5,16 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using template;
 
 namespace Template
 {
 	public class OpenTKApp : GameWindow
 	{
-		static int screenID;
-		static Game game;
+		static int screenID, screenIDDebug;
+        public int screenSize = 512;
+        public int screenDebugSize = 1024;
+		static Raytracer raytracer;
 		static bool terminated = false;
 		protected override void OnLoad( EventArgs e )
 		{
@@ -20,12 +23,18 @@ namespace Template
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size( 640, 400 );
-			game = new Game();
-			game.screen = new Surface( Width, Height );
-			Sprite.target = game.screen;
-			screenID = game.screen.GenTexture();
-			game.Init();
+			ClientSize = new Size(1024, 512);
+            raytracer = new Raytracer
+            {
+                scene = new Scene(),
+                camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1)),
+                screen = new Surface(screenSize, screenSize, new Vector3(-5, 5, 2), new Vector3(5, 5, 2), new Vector3(5,-5,2)),
+                screenDebug = new Surface(screenDebugSize, screenDebugSize, Vector3.Zero, Vector3.Zero, Vector3.Zero)
+            };
+            Sprite.target = raytracer.screen;
+			screenID = raytracer.screen.GenTexture();
+            screenIDDebug = raytracer.screenDebug.GenTexture();
+            raytracer.Init();
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -49,8 +58,8 @@ namespace Template
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
-			// called once per frame; render
-			game.Tick();
+            // called once per frame; render
+            raytracer.Render();
 			if (terminated) 
 			{
 				Exit();
@@ -58,27 +67,47 @@ namespace Template
 			}
 			// convert Game.screen to OpenGL texture
 			GL.BindTexture( TextureTarget.Texture2D, screenID );
-			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
-						   game.screen.width, game.screen.height, 0, 
-						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra, 
-						   PixelType.UnsignedByte, game.screen.pixels 
-						 );
-			// clear window contents
-			GL.Clear( ClearBufferMask.ColorBufferBit );
+            GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, raytracer.screen.width, raytracer.screen.height, 0, 
+						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, raytracer.screen.pixels);
+            // clear window contents
+            GL.Clear( ClearBufferMask.ColorBufferBit );
 			// setup camera
 			GL.MatrixMode( MatrixMode.Modelview );
 			GL.LoadIdentity();
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
-			// draw screen filling quad
+			// draw screen filling quad 
 			GL.Begin( PrimitiveType.Quads );
+            
 			GL.TexCoord2( 0.0f, 1.0f ); GL.Vertex2( -1.0f, -1.0f );
-			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  1.0f, -1.0f );
-			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  1.0f,  1.0f );
+			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  0f, -1.0f );
+			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  0f,  1.0f );
 			GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
-			GL.End();
-			// tell OpenTK we're done rendering
-			SwapBuffers();
+            GL.End();
+            
+            
+            // convert Game.screen to OpenGL texture
+            GL.BindTexture(TextureTarget.Texture2D, screenIDDebug);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, raytracer.screenDebug.width, raytracer.screenDebug.height, 0,
+                           OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, raytracer.screenDebug.pixels);
+            // clear window contents
+            // setup camera
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            // draw screen filling quad
+
+            GL.Begin(PrimitiveType.Quads);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(0f, -1.0f);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(1.0f, -1.0f);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(1.0f, 1.0f);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(0f, 1.0f);
+            GL.End();
+            
+            
+            // tell OpenTK we're done rendering
+            SwapBuffers();
 		}
 		public static void Main( string[] args ) 
 		{ 
