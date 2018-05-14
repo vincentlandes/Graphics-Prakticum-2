@@ -3,9 +3,11 @@ using System.IO;
 using template;
 using static template.Scene;
 using OpenTK;
+using System.Collections.Generic;
+
 namespace Template
 {
-    class Raytracer
+    public class Raytracer
     {
         // member variables
         public Surface screen;
@@ -13,7 +15,14 @@ namespace Template
         public Camera camera;
         public Scene scene;
 
-        struct Ray
+        public static Ray[,] ray = new Ray[512, 512];
+
+        public static Ray[,] GetRays => ray;
+        public static List<Primitive> Objects;
+        
+
+
+        public struct Ray
         {
             public Vector3 O; // ray origin
             public Vector3 D; // ray direction (normalized)
@@ -30,9 +39,9 @@ namespace Template
 	    public void Render()
 	    {
             screen.Clear(0);
-            Ray[,] ray;
 
-            ray = new Ray[screen.width, screen.height];
+            Objects = GetObjects;
+
             //
             for (int y = 0; y < screen.height; y++)
             {
@@ -46,8 +55,17 @@ namespace Template
 
                     if (x%50 == 0 && y == 0)
                         screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray[x, y].D.X), CordzTrans(ray[x, y].D.Z), 0xffff00);
+
+                    for (int i = 0; i < Objects.Length; i++) //щ（ﾟДﾟщ）
+                    {
+
+                    }
+
                 }
+
             }
+
+            
 
             //Draw Debug screen
             screenDebug.Line(0, 0, 0, 1024, 0xffffff);
