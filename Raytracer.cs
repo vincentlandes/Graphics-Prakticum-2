@@ -15,6 +15,9 @@ namespace Template
         public Camera camera;
         public Scene scene;
 
+        double angle = (100 * Math.PI) / 180;
+
+
         public static Ray[,] ray = new Ray[512, 512];
 
         public static Ray[,] GetRays => ray;
@@ -33,36 +36,40 @@ namespace Template
         // initialize
         public void Init()
         {
-
+            ChangePOV(angle);
         }
+
         // tick: renders one frame
         public void Render()
         {
             screen.Clear(0);
-
-            Objects = GetObjects;
 
             //
             for (int y = 0; y < screen.height; y++)
             {
                 for (int x = 0; x < screen.width; x++)
                 {
-                    ray[x, y].t = 30;
-                    ray[x, y].O = camera.CamPos;
-                    ray[x, y].D = screen.pos0 + (x * ((screen.pos1 - screen.pos0) / 512)) + (y * ((screen.pos2 - screen.pos0) / 512));
-                    //ray direction
-                    ray[x, y].D = (ray[x, y].D - camera.CamPos).Normalized();
+                    Ray ray;
+                    ray.t = 300;
+                    ray.O = camera.CamPos;
+                    ray.D = screen.pos0 + (x * ((screen.pos1 - screen.pos0) / 512.0f)) + (y * ((screen.pos2 - screen.pos0) / 512.0f));
+                    //ray normalized direction
+                    ray.D = (ray.D - camera.CamPos).Normalized();
 
-                    if (x % 50 == 0 && y == 0)
-                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray[x, y].D.X), CordzTrans(ray[x, y].D.Z), 0xffff00);
+                    Intersection nearest = null;
 
-                    for (int i = 0; i < Objects.Count; i++) //щ（ﾟДﾟщ）<3 kjoet, munro. tenk joe *x* ^.^ :^)
+                    foreach (Primitive p in prims)
                     {
-                        Objects[i].Intersection(ray[x, y]);
+                        Intersection overr = p.Intersection(ref ray);
+
+                        if (overr != null)
+                            nearest = overr;
                     }
-
+                        if (x % 10 == 0 && y == screen.height / 2)
+                            screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);
+                        if (nearest !=null)
+                            screen.Plot(x, y, nearest.p.Color);
                 }
-
             }
 
 
@@ -110,27 +117,28 @@ namespace Template
             yy = (y - 1024 + 150) / 51.2f;
             return (int)yy;
         }
+
+        public void ChangePOV(double _angle)
+        {
+            double angle = _angle / 2;
+            double disToScreen = 2 / Math.Tan(angle);
+            Vector3 ScreenC = camera.CamPos + (float)disToScreen * camera.CamDir;
+            screen.pos0 = ScreenC + new Vector3(-2, -2, 0);
+            screen.pos1 = ScreenC + new Vector3(2, -2, 0);
+            screen.pos2 = ScreenC + new Vector3(-2, 2, 0);
+        }
+
+        public static int VecToInt(Vector3 c)
+        {
+            int color;
+
+            color = ((int)c.Z << 0) | ((int)c.Y << 8) | ((int)c.X << 16);
+
+            return color;
+        }
     }
 } // namespace Template
 
 /*
  *
-             //Draw ray tracer
-            for (int y = 0; y < screen.height; y++)
-            {
-                for (int x = 0; x < screen.width; x++)
-                {
-                    Ray ray = new Ray();
-                    ray.O = camera.CamPos;
-                    ray.ray.Z = 15;
-                    ray.ray.X = screen.pos1.X + InvertxTrans(x);
-                    ray.ray.Y = screen.pos1.Y + InvertyTrans(y);
-                    ray.D = (ray.ray - camera.CamPos).Normalized();
-                    ray.ray = ray.D * ray.ray.Z;
-                    
-                    screenDebug.Line(CordxTrans(ray.O.X), CordzTrans(ray.O.Z), CordxTrans(ray.ray.X), CordzTrans(ray.ray.Z) ,0xffff00);
-                    //wil een ray schieten van camera naar dit punt in het scherm
-                }
-            }
- * 
  */

@@ -58,6 +58,9 @@ namespace Template
             pos1 = _pos1;
             pos2 = _pos2;
 		}
+
+
+
         // surface constructor using a file
 		public Surface( string fileName )
 		{
@@ -201,11 +204,11 @@ namespace Template
 			}
 		}
         // plot a single pixel
-		public void Plot( int x, int y, int c )
+		public void Plot( int x, int y, Vector3 c )
 		{
 			if ((x >= 0) && (y >= 0) && (x < width) && (y < height))
 			{
-				pixels[x + y * width] = c;
+				pixels[x + y * width] = Raytracer.VecToInt(c);
 			}
 		}
         // print a string
@@ -245,7 +248,7 @@ namespace Template
                 {
                     //(x-h)^2 + (y-k)^2 + (z-l)^2 = r^2
                     double var1 = (Math.Pow(x - CordxTrans(sphere.pos.X), 2) + Math.Pow(z - CordyTrans(sphere.pos.Z), 2));
-                    double var2 = 5000;//Math.Pow(sphere.rad, 2);
+                    double var2 = Math.Pow(radToPix(sphere.rad), 2);
                     if (var1  <= var2)
                     {
                         Plot(x, z, sphere.Color);
@@ -266,6 +269,13 @@ namespace Template
             float yy;
             yy = 1024 - (y * 51.2f) - 150;
             return (int)yy;
+        }
+
+        public int radToPix(float _rad)
+        {
+            float rad;
+            rad = _rad * 51.2f /1.30f;
+            return (int)rad;
         }
     }
 }
