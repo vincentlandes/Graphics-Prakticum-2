@@ -37,7 +37,7 @@ namespace Template
         public void Render()
         {
             screen.Clear(0);
-
+            light1 = GetLight;
             //
             for (int y = 0; y < screen.height; y++)
             {
@@ -60,13 +60,34 @@ namespace Template
                             nearest = overr;
                     }
 
+                    if (nearest != null)
+                    {
+
+                        Ray shadowRay = new Ray();
+                        shadowRay.D = (light1.pos - shadowRay.O).Normalized();
+                        shadowRay.O = nearest.I + shadowRay.D * Single.Epsilon;
+                       
+
+                        foreach (Primitive p in prims)
+                        {
+                            if (p.Intersection(ref shadowRay) != null)
+                                nearest.C *= new Vector3(0, 0, 0);
+                            else
+                                nearest.C *= light1.color;
+
+                        }
+
+                    }
+
+
+
                     //Draw 1 in 10 rays on the debugscreen
                     if (x % 10 == 0 && y == screen.height / 2)
                         screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);
 
                     //Draw the ray on the screen
                     if (nearest !=null)
-                        screen.Plot(x, y, nearest.p.Color);
+                        screen.Plot(x, y, nearest.C);
                 }
             }
 

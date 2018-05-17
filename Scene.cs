@@ -13,12 +13,13 @@ namespace template
     {
         public static Sphere sphere1, sphere2, sphere3;
         public Plane plane;
+        public static Light light1;
         public static List<Primitive> prims = new List<Primitive>();
 
         public Scene()
         {
             //Create all the objects in the scene
-            plane = new Plane(new Vector3(0, 1, 0), -1f);
+            plane = new Plane(new Vector3(0, -1, 0), 2.0f, new Vector3(255,255,255), new Vector3(0,-2,0));
             sphere1 = new Sphere(new Vector3(0, 0, 7), 2f, new Vector3(255, 0, 0));
             sphere2 = new Sphere(new Vector3(-5, 0, 7), 2f,new Vector3(0, 255, 0));
             sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(173, 216, 230));
@@ -27,12 +28,18 @@ namespace template
             prims.Add(sphere1);
             prims.Add(sphere2);
             prims.Add(sphere3);
+            //Create lightsource(s)
+            light1 = new Light(new Vector3(0, 3, 5), new Vector3(300, 300, 300), 0.8f);
+
+            
         }
 
 
         public static Sphere GetSphere1 => sphere1;
         public static Sphere GetSphere2 => sphere2;
         public static Sphere GetSphere3 => sphere3;
+
+        public static Light GetLight => light1;
     }
 
     public abstract class Primitive
@@ -69,45 +76,52 @@ namespace template
 
             Vector3 I = ray.O + (ray.t * ray.D);
             Vector3 N = (I - this.pos).Normalized();
-            return new Intersection(t, N, this);
-            
-            
-            /*Vector3 I = ray.O + (ray.t * ray.D);
-            Vector3 N = (I - this.pos).Normalized();
-            Vector3 Color = this.Color;
-            return new Intersection(I,N,Color);*/
+            return new Intersection(I, N, Color);
         }
-    }
-
-    public class Intersection
-    {
-        public float t;
-        public Vector3 N;
-        public Primitive p;
-
-        public Intersection(float _t, Vector3 _N, Primitive _p)
-        {
-            t = _t;
-            N = _N;
-            p = _p;
-        }
-       
     }
 
     public class Plane : Primitive
     {
         public Vector3 norm;
         public float dist;
+        Vector3 planepos;
 
-        public Plane(Vector3 _norm, float _dist)
+        public Plane(Vector3 _norm, float _dist, Vector3 _color, Vector3 _planepos)
         {
             norm = _norm;
             dist = _dist;
+            Color = _color;
+            planepos = _planepos;
         }
 
         public override Intersection Intersection(ref Ray ray)
         {
-            return null;
+            
+            float t = -(Vector3.Dot(ray.O, norm) + dist) / (Vector3.Dot(ray.D, norm));
+            if (t >= 0)
+            {
+                ray.t = t;
+                Vector3 I = ray.O + (ray.t * ray.D);
+                return new Intersection(I, norm, Color);
+            }
+
+            else return null;
+            
         }
+    }
+    
+    public class Intersection
+    {
+        public Vector3 I;
+        public Vector3 N;
+        public Vector3 C;
+
+        public Intersection(Vector3 _I, Vector3 _N, Vector3 _C)
+        {
+            I = _I;
+            N = _N;
+            C = _C;
+        }
+
     }
 }
