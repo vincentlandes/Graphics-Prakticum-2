@@ -17,16 +17,16 @@ namespace template
 
         public Scene()
         {
+            //Create all the objects in the scene
             plane = new Plane(new Vector3(0, 1, 0), -1f);
             sphere1 = new Sphere(new Vector3(0, 0, 7), 2f, new Vector3(255, 0, 0));
             sphere2 = new Sphere(new Vector3(-5, 0, 7), 2f,new Vector3(0, 255, 0));
             sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(173, 216, 230));
-
+            //Save all the objects in a list
             prims.Add(plane);
             prims.Add(sphere1);
             prims.Add(sphere2);
             prims.Add(sphere3);
-            //(╯°□°）╯︵ ┻━┻  ヽ(●ﾟ´Д｀ﾟ●)ﾉﾟ (✖╭╮✖)
         }
 
 
@@ -46,7 +46,6 @@ namespace template
     {
         public Vector3 pos;
         public float rad;
-        //public Vector3 Color;
 
         public Sphere(Vector3 _pos, float _rad, Vector3 _color)
         {
@@ -55,6 +54,7 @@ namespace template
             Color = _color;           
         }
 
+        //The intersection function for the sphere
         public override Intersection Intersection(ref Ray ray) 
         {
             Vector3 CSphere = pos;

@@ -10,20 +10,14 @@ namespace Template
     public class Raytracer
     {
         // member variables
+        public static List<Primitive> Objects;
         public Surface screen;
         public Surface screenDebug;
         public Camera camera;
         public Scene scene;
 
+        //Angle for the PoV
         double angle = (100 * Math.PI) / 180;
-
-
-        public static Ray[,] ray = new Ray[512, 512];
-
-        public static Ray[,] GetRays => ray;
-        public static List<Primitive> Objects;
-
-
 
         public struct Ray
         {
@@ -39,7 +33,7 @@ namespace Template
             ChangePOV(angle);
         }
 
-        // tick: renders one frame
+        // Render: renders one frame
         public void Render()
         {
             screen.Clear(0);
@@ -65,23 +59,28 @@ namespace Template
                         if (overr != null)
                             nearest = overr;
                     }
-                        if (x % 10 == 0 && y == screen.height / 2)
-                            screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);
-                        if (nearest !=null)
-                            screen.Plot(x, y, nearest.p.Color);
+
+                    //Draw 1 in 10 rays on the debugscreen
+                    if (x % 10 == 0 && y == screen.height / 2)
+                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);
+
+                    //Draw the ray on the screen
+                    if (nearest !=null)
+                        screen.Plot(x, y, nearest.p.Color);
                 }
             }
 
 
 
             //Draw Debug screen
+            //Draw line between screen and debug screen
             screenDebug.Line(0, 0, 0, 1024, 0xffffff);
-            //camera
+            //Draw camera as 2 orange lines
             screenDebug.Line(CordxTrans(camera.CamPos.X) - 5, CordzTrans(camera.CamPos.Y) - 1, CordxTrans(camera.CamPos.X) + 5, CordzTrans(camera.CamPos.Y) - 1, 0xffa500);
             screenDebug.Line(CordxTrans(camera.CamPos.X) - 5, CordzTrans(camera.CamPos.Y) + 1, CordxTrans(camera.CamPos.X) + 5, CordzTrans(camera.CamPos.Y) + 1, 0xffa500);
-            //screen
+            //Draw screen as a blue line
             screenDebug.Line(CordxTrans(screen.pos1.X), CordzTrans(screen.pos1.Z), CordxTrans(screen.pos2.X), CordzTrans(screen.pos2.Z), 0x00ffff);
-            //bollen
+            //Draw spheres
             var sphere1 = GetSphere1;
             screenDebug.DrawSphere(sphere1);
             var sphere2 = GetSphere2;
@@ -90,6 +89,8 @@ namespace Template
             screenDebug.DrawSphere(sphere3);
         }
 
+
+        //change coordinate to pixel location
         public int CordxTrans(float x)
         {
             float xx;
@@ -97,6 +98,7 @@ namespace Template
             return (int)xx;
         }
 
+        //change coordinate to pixel location
         public int CordzTrans(float y)
         {
             float yy;
@@ -104,6 +106,7 @@ namespace Template
             return (int)yy;
         }
 
+        //change pixel location to coordinate
         public int InvertxTrans(float x)
         {
             float xx;
@@ -111,6 +114,7 @@ namespace Template
             return (int)xx;
         }
 
+        //change pixel location to coordinate
         public int InvertyTrans(float y)
         {
             float yy;
@@ -118,6 +122,7 @@ namespace Template
             return (int)yy;
         }
 
+        //calculate the screen with the given angle
         public void ChangePOV(double _angle)
         {
             double angle = _angle / 2;
@@ -128,17 +133,12 @@ namespace Template
             screen.pos2 = ScreenC + new Vector3(-2, 2, 0);
         }
 
+        //change the Color vector to an integer
         public static int VecToInt(Vector3 c)
         {
             int color;
-
             color = ((int)c.Z << 0) | ((int)c.Y << 8) | ((int)c.X << 16);
-
             return color;
         }
     }
-} // namespace Template
-
-/*
- *
- */
+}
