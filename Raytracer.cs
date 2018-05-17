@@ -38,6 +38,8 @@ namespace Template
         {
             screen.Clear(0);
             light1 = GetLight;
+            Vector3 Color = new Vector3(1,1,1);
+
             //
             for (int y = 0; y < screen.height; y++)
             {
@@ -64,22 +66,30 @@ namespace Template
                     {
 
                         Ray shadowRay = new Ray();
+                        shadowRay.O = nearest.I + nearest.N * Single.Epsilon;
                         shadowRay.D = (light1.pos - shadowRay.O).Normalized();
-                        shadowRay.O = nearest.I + shadowRay.D * Single.Epsilon;
                        
 
                         foreach (Primitive p in prims)
                         {
-                            if (p.Intersection(ref shadowRay) != null)
-                                nearest.C *= new Vector3(0, 0, 0);
-                            else
-                                nearest.C *= light1.color;
+                            if (Color == Vector3.Zero)
+                            {
+                                if (p.Intersection(ref shadowRay) != null)
+                                    Color = nearest.C * Vector3.Zero;
+                                else
+                                {
+                                    //klopt
+                                    var ndotl = Vector3.Dot(nearest.N, shadowRay.D);
+                                    var dist = (light1.pos - shadowRay.O).Length;
+                                    Color = ndotl / (dist * dist) * light1.color * light1.brightness * nearest.C;
 
+                                }
+
+                            }
                         }
-
                     }
-
-
+                    /* In de scene intersection function maken die een ray neemt en alle primitives langs loopt, vervolgens kunnen we loop weglaten en hem gebruiken voor Primary&shadow ray.
+                     */
 
                     //Draw 1 in 10 rays on the debugscreen
                     if (x % 10 == 0 && y == screen.height / 2)
@@ -88,6 +98,8 @@ namespace Template
                     //Draw the ray on the screen
                     if (nearest !=null)
                         screen.Plot(x, y, nearest.C);
+                    Color = new Vector3(1, 1, 1);
+
                 }
             }
 

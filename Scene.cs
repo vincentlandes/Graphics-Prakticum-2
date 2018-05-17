@@ -7,6 +7,7 @@ using OpenTK;
 using Template;
 using static Template.Raytracer;
 
+//Alles in aparte classes taps (aanrader)!
 namespace template
 {
     public class Scene
