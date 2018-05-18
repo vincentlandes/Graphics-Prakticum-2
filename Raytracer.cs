@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using template;
 using static template.Scene;
 using OpenTK;
@@ -39,14 +38,13 @@ namespace Template
             screen.Clear(0);
             light1 = GetLight;
             
-
-            //
+            //render screens
             for (int y = 0; y < screen.height; y++)
             {
                 for (int x = 0; x < screen.width; x++)
                 {
                     Ray ray;
-                    ray.t = 300;
+                    ray.t = 30;
                     ray.O = camera.CamPos;
                     ray.D = screen.pos0 + (x * ((screen.pos1 - screen.pos0) / 512.0f)) + (y * ((screen.pos2 - screen.pos0) / 512.0f));
                     //ray normalized direction
@@ -62,13 +60,13 @@ namespace Template
                             nearest = overr;
                     }
 
+                    // if there is an intersection, create a shadow ray
                     if (nearest != null)
                     {
-
                         Ray shadowRay = new Ray();
                         shadowRay.D = (light1.pos - nearest.I).Normalized();
                         shadowRay.O = nearest.I + shadowRay.D * 0.0001f;
-                        shadowRay.t = 300;
+                        shadowRay.t = 0;
 
                         Vector3 Color = Vector3.Zero;
 
@@ -81,6 +79,7 @@ namespace Template
                             {
                                 if (p.Intersection(ref shadowRay) != null)
                                 {
+                                    // if there is an object interfearing the light
                                     occluded = true;
                                     break;
                                 }
@@ -88,24 +87,21 @@ namespace Template
 
                             if (!occluded)
                             {
-                                //klopt
+                                //make the shadow
                                 var dist = (light1.pos - shadowRay.O).Length;
-                                Color = ndotl / (dist * dist) * light1.color * nearest.C;
-
+                                Color = ndotl / (dist * dist) * light1.color * light1.brightness * nearest.C;
                             }
-                            
                         }
+                        //plot the correct color on the correct pixel
                         screen.Plot(x, y, Color);
                     }
 
                     //Draw 1 in 10 rays on the debugscreen
                     if (x % 10 == 0 && y == screen.height / 2)
-                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);
-                                    
+                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);              
                 }
             }
-
-
+            
 
             //Draw Debug screen
             //Draw line between screen and debug screen

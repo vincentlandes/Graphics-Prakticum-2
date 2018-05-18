@@ -22,15 +22,15 @@ namespace template
             //Create all the objects in the scene
             plane = new Plane(new Vector3(0, 1, 0), 2.0f, new Vector3(1.0f ,1.0f ,1.0f), new Vector3(0,-2,0));
             sphere1 = new Sphere(new Vector3(0, 0, 7), 2f, new Vector3(1.0f, 0.0f, 0.0f));
-            sphere2 = new Sphere(new Vector3(-5, 0, 7), 2f,new Vector3(0.5f, 0.5f, 0.5f));
-            sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(0.7f , 0.9f, 0.8f));  //aanpassen
+            sphere2 = new Sphere(new Vector3(-5, 0, 7), 2f,new Vector3(0.0f, 1.0f, 0.0f));
+            sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(0.0f , 0.0f, 1.0f));  //aanpassen
             //Save all the objects in a list
             prims.Add(plane);
             prims.Add(sphere1);
             prims.Add(sphere2);
             prims.Add(sphere3);
             //Create lightsource(s)
-            light1 = new Light(new Vector3(0, 3, 5), new Vector3(200, 200, 200), 0.8f);
+            light1 = new Light(new Vector3(0, 5, 3), new Vector3(200, 200, 200), 0.8f);
 
             
         }
