@@ -20,10 +20,10 @@ namespace template
         public Scene()
         {
             //Create all the objects in the scene
-            plane = new Plane(new Vector3(0, 1, 0), 2.0f, new Vector3(1.0f ,1.0f ,1.0f), new Vector3(0,-2,0));
+            plane = new Plane(new Vector3(0, 1, 0), 3.0f, new Vector3(1.0f ,1.0f ,1.0f), new Vector3(0,-2,0));
             sphere1 = new Sphere(new Vector3(0, 0, 7), 2f, new Vector3(1.0f, 0.0f, 0.0f));
             sphere2 = new Sphere(new Vector3(-5, 0, 7), 2f,new Vector3(0.0f, 1.0f, 0.0f));
-            sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(0.0f , 0.0f, 1.0f));  //aanpassen
+            sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(0.0f , 0.0f, 1.0f));
             //Save all the objects in a list
             prims.Add(plane);
             prims.Add(sphere1);

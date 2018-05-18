@@ -94,11 +94,13 @@ namespace Template
                         }
                         //plot the correct color on the correct pixel
                         screen.Plot(x, y, Color);
+                        if (x % 10 == 0)
+                            screenDebug.Line(CordxTrans(shadowRay.O.X), CordzTrans(shadowRay.O.Z), CordxTrans(shadowRay.D.X * shadowRay.t), CordzTrans(shadowRay.D.Z * shadowRay.t), 0xffff00);
                     }
 
                     //Draw 1 in 10 rays on the debugscreen
-                    if (x % 10 == 0 && y == screen.height / 2)
-                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);              
+                    //if (x % 10 == 0 && y == screen.height / 2)
+                        //screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);              
                 }
             }
             
