@@ -38,7 +38,7 @@ namespace Template
         {
             screen.Clear(0);
             light1 = GetLight;
-            Vector3 Color = new Vector3(1,1,1);
+            
 
             //
             for (int y = 0; y < screen.height; y++)
@@ -66,40 +66,41 @@ namespace Template
                     {
 
                         Ray shadowRay = new Ray();
-                        shadowRay.O = nearest.I + nearest.N * Single.Epsilon;
-                        shadowRay.D = (light1.pos - shadowRay.O).Normalized();
-                       
+                        shadowRay.D = (light1.pos - nearest.I).Normalized();
+                        shadowRay.O = nearest.I + shadowRay.D * 0.0000001f;
+                        shadowRay.t = 300;
 
-                        foreach (Primitive p in prims)
+                        Vector3 Color = Vector3.Zero;
+
+                        var ndotl = Vector3.Dot(nearest.N, shadowRay.D);
+                        if (ndotl > 0)
                         {
-                            if (Color == Vector3.Zero)
+                            bool occluded = false;
+                            
+                            foreach (Primitive p in prims)
                             {
                                 if (p.Intersection(ref shadowRay) != null)
-                                    Color = nearest.C * Vector3.Zero;
-                                else
                                 {
-                                    //klopt
-                                    var ndotl = Vector3.Dot(nearest.N, shadowRay.D);
-                                    var dist = (light1.pos - shadowRay.O).Length;
-                                    Color = ndotl / (dist * dist) * light1.color * light1.brightness * nearest.C;
-
+                                    occluded = true;
+                                    break;
                                 }
+                            }
+
+                            if (!occluded)
+                            {
+                                //klopt
+                                var dist = (light1.pos - shadowRay.O).Length;
+                                Color = ndotl / (dist * dist) * light1.color * light1.brightness * nearest.C;
 
                             }
+                            screen.Plot(x, y, Color);
                         }
                     }
-                    /* In de scene intersection function maken die een ray neemt en alle primitives langs loopt, vervolgens kunnen we loop weglaten en hem gebruiken voor Primary&shadow ray.
-                     */
 
                     //Draw 1 in 10 rays on the debugscreen
                     if (x % 10 == 0 && y == screen.height / 2)
                         screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);
-
-                    //Draw the ray on the screen
-                    if (nearest !=null)
-                        screen.Plot(x, y, nearest.C);
-                    Color = new Vector3(1, 1, 1);
-
+                                    
                 }
             }
 
@@ -161,16 +162,20 @@ namespace Template
             double angle = _angle / 2;
             double disToScreen = 2 / Math.Tan(angle);
             Vector3 ScreenC = camera.CamPos + (float)disToScreen * camera.CamDir;
-            screen.pos0 = ScreenC + new Vector3(-2, -2, 0);
-            screen.pos1 = ScreenC + new Vector3(2, -2, 0);
-            screen.pos2 = ScreenC + new Vector3(-2, 2, 0);
+            screen.pos0 = ScreenC + new Vector3(-2, 2, 0);
+            screen.pos1 = ScreenC + new Vector3(2, 2, 0);
+            screen.pos2 = ScreenC + new Vector3(-2, -2, 0);
         }
 
-        //change the Color vector to an integer
+        //change the Color vector to an integer --> aanpassen nog!
         public static int VecToInt(Vector3 c)
         {
             int color;
-            color = ((int)c.Z << 0) | ((int)c.Y << 8) | ((int)c.X << 16);
+            int red = (int)(Math.Min(1.0f, c.X) * 255.0f);
+            int blue = (int)(Math.Min(1.0f, c.Z) * 255.0f);
+            int green = (int)(Math.Min(1.0f, c.Y) * 255.0f);
+
+            color = (blue << 0) | (green << 8) | (red << 16);
             return color;
         }
     }
