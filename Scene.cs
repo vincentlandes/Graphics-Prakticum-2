@@ -30,7 +30,7 @@ namespace template
             prims.Add(sphere2);
             prims.Add(sphere3);
             //Create lightsource(s)
-            light1 = new Light(new Vector3(0, 3, 5), new Vector3(0.9f, 0.9f, 0.9f), 0.8f);
+            light1 = new Light(new Vector3(0, 3, 5), new Vector3(200, 200, 200), 0.8f);
 
             
         }

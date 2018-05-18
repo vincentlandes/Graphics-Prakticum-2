@@ -67,7 +67,7 @@ namespace Template
 
                         Ray shadowRay = new Ray();
                         shadowRay.D = (light1.pos - nearest.I).Normalized();
-                        shadowRay.O = nearest.I + shadowRay.D * 0.0000001f;
+                        shadowRay.O = nearest.I + shadowRay.D * 0.0001f;
                         shadowRay.t = 300;
 
                         Vector3 Color = Vector3.Zero;
@@ -90,11 +90,12 @@ namespace Template
                             {
                                 //klopt
                                 var dist = (light1.pos - shadowRay.O).Length;
-                                Color = ndotl / (dist * dist) * light1.color * light1.brightness * nearest.C;
+                                Color = ndotl / (dist * dist) * light1.color * nearest.C;
 
                             }
-                            screen.Plot(x, y, Color);
+                            
                         }
+                        screen.Plot(x, y, Color);
                     }
 
                     //Draw 1 in 10 rays on the debugscreen
