@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
+﻿using OpenTK;
 
 namespace template
 {
@@ -12,8 +7,6 @@ namespace template
         public Vector3 pos;
         public Vector3 color;
         public float brightness;
-
-
 
         public Light(Vector3 _pos, Vector3 _color, float _brightness)
         {

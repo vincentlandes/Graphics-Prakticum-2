@@ -16,7 +16,9 @@ namespace Template
         public Scene scene;
 
         //Angle for the PoV
-        double angle = (100 * Math.PI) / 180;
+        public int angle = 100;
+        public float recursive = 50.0f;
+            
 
         public struct Ray
         {
@@ -36,8 +38,8 @@ namespace Template
         public void Render()
         {
             screen.Clear(0);
-            light1 = GetLight;
-            
+            Vector3 Color;
+
             //render screens
             for (int y = 0; y < screen.height; y++)
             {
@@ -51,6 +53,7 @@ namespace Template
                     ray.D = (ray.D - camera.CamPos).Normalized();
 
                     Intersection nearest = null;
+                    Intersection nearestref = null;
 
                     foreach (Primitive p in prims)
                     {
@@ -63,44 +66,49 @@ namespace Template
                     // if there is an intersection, create a shadow ray
                     if (nearest != null)
                     {
-                        Ray shadowRay = new Ray();
-                        shadowRay.D = (light1.pos - nearest.I).Normalized();
-                        shadowRay.O = nearest.I + shadowRay.D * 0.0001f;
-                        shadowRay.t = 0;
-
-                        Vector3 Color = Vector3.Zero;
-
-                        var ndotl = Vector3.Dot(nearest.N, shadowRay.D);
-                        if (ndotl > 0)
+                        if (nearest.isMirror == false)
+                            Color = CastShadowRay(nearest);
+                        else
                         {
-                            bool occluded = false;
-                            
+                            Color = CastShadowRay(nearest) * (1 - recursive/100);
+                            Ray reflectionRay;
+                            reflectionRay.O = nearest.I;
+                            reflectionRay.t = 300;
+                            reflectionRay.D = ray.D - 2 * nearest.N * (Vector3.Dot(ray.D, nearest.N));
+
                             foreach (Primitive p in prims)
                             {
-                                if (p.Intersection(ref shadowRay) != null)
-                                {
-                                    // if there is an object interfearing the light
-                                    occluded = true;
-                                    break;
-                                }
+                                Intersection overr = p.Intersection(ref reflectionRay);
+
+                                if (overr != null)
+                                    nearestref = overr;
                             }
 
-                            if (!occluded)
+                            Vector3 Color2 = Vector3.Zero;
+                            if(nearestref != null)
                             {
-                                //make the shadow
-                                var dist = (light1.pos - shadowRay.O).Length;
-                                Color = ndotl / (dist * dist) * light1.color * light1.brightness * nearest.C;
+                                Color2 = CastShadowRay(nearestref) * (recursive / 100.0f);
                             }
+                            else
+                                Color2 = Vector3.Zero;
+
+                            Color = Color + Color2;
+
+                            //draw reflectionrays on debug screen.
+                            if (x % 20 == 0 && y == screen.height / 2)
+                                screenDebug.Line(CordxTrans(reflectionRay.O.X), CordzTrans(reflectionRay.O.Z), CordxTrans(reflectionRay.D.X * ray.t), CordzTrans(reflectionRay.D.Z * ray.t), 0xff00ff);                            
                         }
-                        //plot the correct color on the correct pixel
-                        screen.Plot(x, y, Color);
-                        if (x % 10 == 0)
-                            screenDebug.Line(CordxTrans(shadowRay.O.X), CordzTrans(shadowRay.O.Z), CordxTrans(shadowRay.D.X * shadowRay.t), CordzTrans(shadowRay.D.Z * shadowRay.t), 0xffff00);
                     }
+                    else
+                        Color = Vector3.Zero;
+  
+
+                    //plot the correct color on the correct pixel
+                    screen.Plot(x, y, Color);
 
                     //Draw 1 in 10 rays on the debugscreen
-                    //if (x % 10 == 0 && y == screen.height / 2)
-                        //screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);              
+                    if (x % 20 == 0 && y == screen.height / 2)
+                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);              
                 }
             }
             
@@ -122,6 +130,48 @@ namespace Template
             screenDebug.DrawSphere(sphere3);
         }
 
+
+        public Vector3 CastShadowRay(Intersection nearest)
+        {
+            foreach (Light l in lights)
+            {
+                Ray shadowRay = new Ray();
+                shadowRay.D = (l.pos - nearest.I).Normalized();
+                shadowRay.O = nearest.I + shadowRay.D * 0.0001f;
+                shadowRay.t = 300;
+
+                Vector3 Color = Vector3.Zero;
+
+                var ndotl = Vector3.Dot(nearest.N, shadowRay.D);
+                if (ndotl > 0)
+                {
+                    bool occluded = false;
+
+                    foreach (Primitive p in prims)
+                    {
+                        if (p.Intersection(ref shadowRay) != null)
+                        {
+                            // if there is an object interfearing the light
+                            occluded = true;
+                            break;
+                        }
+                    }
+
+                    if (!occluded)
+                    {
+                        //make the shadow
+                        var dist = (l.pos - shadowRay.O).Length;
+                        Color = (ndotl / (dist * dist)) * l.color * nearest.C * ndotl * ndotl;
+                    }
+                    else
+                    {
+                        Color = new Vector3(0, 0, 0);
+                    }
+                }
+                return Color;
+            }
+            return Vector3.Zero;
+        }
 
         //change coordinate to pixel location
         public int CordxTrans(float x)
@@ -158,7 +208,7 @@ namespace Template
         //calculate the screen with the given angle
         public void ChangePOV(double _angle)
         {
-            double angle = _angle / 2;
+            double angle = (_angle * Math.PI) / 180/ 2;
             double disToScreen = 2 / Math.Tan(angle);
             Vector3 ScreenC = camera.CamPos + (float)disToScreen * camera.CamDir;
             screen.pos0 = ScreenC + new Vector3(-2, 2, 0);

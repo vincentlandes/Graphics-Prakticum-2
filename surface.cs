@@ -2,10 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using template;
-using static template.Scene;
 
 namespace Template
 {

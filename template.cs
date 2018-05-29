@@ -54,8 +54,47 @@ namespace Template
 		{
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
-			if (keyboard[OpenTK.Input.Key.Escape]) this.Exit();
-		}
+            if (keyboard[OpenTK.Input.Key.Escape])
+                this.Exit();
+
+            if (keyboard[OpenTK.Input.Key.A])
+            {
+                raytracer.screenDebug.Clear(0);
+                raytracer.camera.CamPos.X -= 0.5f;
+                raytracer.ChangePOV(raytracer.angle);
+            }
+            if (keyboard[OpenTK.Input.Key.D])
+            {
+                raytracer.screenDebug.Clear(0);
+                raytracer.camera.CamPos.X += 0.5f;
+                raytracer.ChangePOV(raytracer.angle);
+            }
+            if (keyboard[OpenTK.Input.Key.W])
+            {
+                raytracer.screenDebug.Clear(0);
+                raytracer.camera.CamPos.Z += 0.5f;
+                raytracer.ChangePOV(raytracer.angle);
+            }
+            if (keyboard[OpenTK.Input.Key.S])
+            {
+                raytracer.screenDebug.Clear(0);
+                raytracer.camera.CamPos.Z -= 0.5f;
+                raytracer.ChangePOV(raytracer.angle);
+            }
+            if (keyboard[OpenTK.Input.Key.J])
+            {
+                raytracer.screenDebug.Clear(0);
+                raytracer.angle -= 5;
+                raytracer.ChangePOV(raytracer.angle);
+            }
+            if (keyboard[OpenTK.Input.Key.K])
+            {
+                raytracer.screenDebug.Clear(0);
+                raytracer.angle += 5;
+                raytracer.ChangePOV(raytracer.angle);
+            }
+        }
+
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
             // called once per frame; render
