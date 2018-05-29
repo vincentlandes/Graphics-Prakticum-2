@@ -57,8 +57,6 @@ namespace Template
             pos2 = _pos2;
 		}
 
-
-
         // surface constructor using a file
 		public Surface( string fileName )
 		{
@@ -255,6 +253,7 @@ namespace Template
             }
         }
 
+        //From cord system to pixels
         public int CordxTrans(float x)
         {
             float xx;
@@ -262,6 +261,7 @@ namespace Template
             return (int)xx;
         }
 
+        //From cord system to pixels
         public int CordyTrans(float y)
         {
             float yy;
@@ -269,6 +269,7 @@ namespace Template
             return (int)yy;
         }
 
+        //From radialen to pixels
         public int radToPix(float _rad)
         {
             float rad;

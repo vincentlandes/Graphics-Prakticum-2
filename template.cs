@@ -1,10 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Drawing;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Input;
 using template;
 
 namespace Template
@@ -16,6 +13,7 @@ namespace Template
         public int screenDebugSize = 1024;
 		static Raytracer raytracer;
 		static bool terminated = false;
+        Vector3 newVector = Vector3.Zero;
 		protected override void OnLoad( EventArgs e )
 		{
 			// called upon app init
@@ -27,7 +25,7 @@ namespace Template
             raytracer = new Raytracer
             {
                 scene = new Scene(),
-                camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1)),
+                camera = new Camera(new Vector3(0, 0, 0), new Vector3(0.0f, 0, 1.0f)),
                 screen = new Surface(screenSize, screenSize, Vector3.Zero, Vector3.Zero, Vector3.Zero),
                 screenDebug = new Surface(screenDebugSize, screenDebugSize, Vector3.Zero, Vector3.Zero, Vector3.Zero)
             };
@@ -57,41 +55,70 @@ namespace Template
             if (keyboard[OpenTK.Input.Key.Escape])
                 this.Exit();
 
+            // input to move the camara 
             if (keyboard[OpenTK.Input.Key.A])
             {
                 raytracer.screenDebug.Clear(0);
                 raytracer.camera.CamPos.X -= 0.5f;
-                raytracer.ChangePOV(raytracer.angle);
+                raytracer.ChangePOV(raytracer.angle, raytracer.camera.CamDir);
             }
             if (keyboard[OpenTK.Input.Key.D])
             {
                 raytracer.screenDebug.Clear(0);
                 raytracer.camera.CamPos.X += 0.5f;
-                raytracer.ChangePOV(raytracer.angle);
+                raytracer.ChangePOV(raytracer.angle, raytracer.camera.CamDir);
             }
             if (keyboard[OpenTK.Input.Key.W])
             {
                 raytracer.screenDebug.Clear(0);
                 raytracer.camera.CamPos.Z += 0.5f;
-                raytracer.ChangePOV(raytracer.angle);
+                raytracer.ChangePOV(raytracer.angle, raytracer.camera.CamDir);
             }
             if (keyboard[OpenTK.Input.Key.S])
             {
                 raytracer.screenDebug.Clear(0);
                 raytracer.camera.CamPos.Z -= 0.5f;
-                raytracer.ChangePOV(raytracer.angle);
+                raytracer.ChangePOV(raytracer.angle, raytracer.camera.CamDir);
             }
+
+            // input to change the POV
             if (keyboard[OpenTK.Input.Key.J])
             {
                 raytracer.screenDebug.Clear(0);
                 raytracer.angle -= 5;
-                raytracer.ChangePOV(raytracer.angle);
+                raytracer.ChangePOV(raytracer.angle, raytracer.camera.CamDir);
             }
             if (keyboard[OpenTK.Input.Key.K])
             {
                 raytracer.screenDebug.Clear(0);
                 raytracer.angle += 5;
-                raytracer.ChangePOV(raytracer.angle);
+                raytracer.ChangePOV(raytracer.angle, raytracer.camera.CamDir);
+            }
+
+            // input to rotate the camera
+            if (keyboard[OpenTK.Input.Key.Left])
+            {
+                raytracer.screenDebug.Clear(0);
+                newVector = (raytracer.camera.CamDir + -raytracer.UpCrossD * 0.1f).Normalized();
+                raytracer.ChangePOV(raytracer.angle, newVector);
+            }
+            if (keyboard[OpenTK.Input.Key.Right])
+            {
+                raytracer.screenDebug.Clear(0);
+                newVector = (raytracer.camera.CamDir + raytracer.UpCrossD * 0.1f).Normalized();
+                raytracer.ChangePOV(raytracer.angle, newVector);
+            }
+
+            //Change recursive
+            if (keyboard[OpenTK.Input.Key.Up])
+            {
+                if (raytracer.recursive < 100)
+                    raytracer.recursive += 5.0f;
+            }
+            if (keyboard[OpenTK.Input.Key.Down])
+            {
+                if (raytracer.recursive > 0)
+                    raytracer.recursive -= 5.0f;
             }
         }
 

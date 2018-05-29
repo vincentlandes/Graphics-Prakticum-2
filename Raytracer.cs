@@ -17,9 +17,12 @@ namespace Template
 
         //Angle for the PoV
         public int angle = 100;
+        // Recursion value in %
         public float recursive = 50.0f;
+        //Angle from the camera
+        public float camRot = 0.0f;
+        public Vector3 UpCrossD;
             
-
         public struct Ray
         {
             public Vector3 O; // ray origin
@@ -27,11 +30,10 @@ namespace Template
             public float t; // distance
         };
 
-
         // initialize
         public void Init()
         {
-            ChangePOV(angle);
+            ChangePOV(angle, camera.CamDir);
         }
 
         // Render: renders one frame
@@ -45,6 +47,7 @@ namespace Template
             {
                 for (int x = 0; x < screen.width; x++)
                 {
+                    //Create primary ray
                     Ray ray;
                     ray.t = 30;
                     ray.O = camera.CamPos;
@@ -66,11 +69,13 @@ namespace Template
                     // if there is an intersection, create a shadow ray
                     if (nearest != null)
                     {
+                        //Check if the material is reflective
                         if (nearest.isMirror == false)
                             Color = CastShadowRay(nearest);
                         else
                         {
                             Color = CastShadowRay(nearest) * (1 - recursive/100);
+                            //Create reflection ray
                             Ray reflectionRay;
                             reflectionRay.O = nearest.I;
                             reflectionRay.t = 300;
@@ -85,14 +90,23 @@ namespace Template
                             }
 
                             Vector3 Color2 = Vector3.Zero;
+
                             if(nearestref != null)
                             {
+                                //check if the nearest reflected object is reflective to
+                                if (nearestref.isMirror)
+                                {
+                                    if (recursive != 100)
+                                    Color2 = CastShadowRay(nearestref) * (recursive/ 100.0f);
+                                }
+                                else
                                 Color2 = CastShadowRay(nearestref) * (recursive / 100.0f);
                             }
                             else
                                 Color2 = Vector3.Zero;
 
                             Color = Color + Color2;
+                            
 
                             //draw reflectionrays on debug screen.
                             if (x % 20 == 0 && y == screen.height / 2)
@@ -101,14 +115,14 @@ namespace Template
                     }
                     else
                         Color = Vector3.Zero;
-  
+
 
                     //plot the correct color on the correct pixel
                     screen.Plot(x, y, Color);
 
                     //Draw 1 in 10 rays on the debugscreen
                     if (x % 20 == 0 && y == screen.height / 2)
-                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t), CordzTrans(ray.D.Z * ray.t), 0xffff00);              
+                        screenDebug.Line(CordxTrans(camera.CamPos.X), CordzTrans(camera.CamPos.Z), CordxTrans(ray.D.X * ray.t + camera.CamPos.X), CordzTrans(ray.D.Z * ray.t + camera.CamPos.Z), 0xffff00);
                 }
             }
             
@@ -129,15 +143,15 @@ namespace Template
             var sphere3 = GetSphere3;
             screenDebug.DrawSphere(sphere3);
         }
-
-
+        
+        //Function to create the shadow rays
         public Vector3 CastShadowRay(Intersection nearest)
         {
             Vector3 Color = Vector3.Zero;
             Vector3 ColorRef = Vector3.Zero;
-            int counter = 0;
             foreach (Light l in lights)
             {
+                //create shadowray
                 Ray shadowRay = new Ray();
                 shadowRay.D = (l.pos - nearest.I).Normalized();
                 shadowRay.O = nearest.I + shadowRay.D * 0.0001f;
@@ -157,8 +171,6 @@ namespace Template
                             occluded = true;
                             break;
                         }
-                        else
-                            counter++;
                     }
 
                     if (!occluded)
@@ -174,10 +186,8 @@ namespace Template
                         ColorRef += Color;
                     }
                 }
-                ColorRef /= counter;
-                return ColorRef;
             }
-            return Vector3.Zero;
+            return ColorRef;
         }
 
         //change coordinate to pixel location
@@ -213,17 +223,25 @@ namespace Template
         }
 
         //calculate the screen with the given angle
-        public void ChangePOV(double _angle)
+        public void ChangePOV(double _angle, Vector3 _camDir)
         {
+            camera.CamDir = _camDir;
             double angle = (_angle * Math.PI) / 180/ 2;
             double disToScreen = 2 / Math.Tan(angle);
-            Vector3 ScreenC = camera.CamPos + (float)disToScreen * camera.CamDir;
-            screen.pos0 = ScreenC + new Vector3(-2, 2, 0);
-            screen.pos1 = ScreenC + new Vector3(2, 2, 0);
-            screen.pos2 = ScreenC + new Vector3(-2, -2, 0);
+            Vector3 forward = ((float)disToScreen * camera.CamDir).Normalized();
+            Vector3 up = new Vector3(0f, 1f, 0f);
+            Vector3 right = Vector3.Cross(up, forward);
+            Vector3 ScreenC = camera.CamPos + forward;
+      
+            screen.pos0 = ScreenC - right + up;
+            screen.pos1 = ScreenC + right + up;
+            screen.pos2 = ScreenC - right - up;
+            
+
+            this.UpCrossD = right;
         }
 
-        //change the Color vector to an integer --> aanpassen nog!
+        //change the Color vector to an integer
         public static int VecToInt(Vector3 c)
         {
             int color;
