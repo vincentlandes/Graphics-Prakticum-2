@@ -133,6 +133,9 @@ namespace Template
 
         public Vector3 CastShadowRay(Intersection nearest)
         {
+            Vector3 Color = Vector3.Zero;
+            Vector3 ColorRef = Vector3.Zero;
+            int counter = 0;
             foreach (Light l in lights)
             {
                 Ray shadowRay = new Ray();
@@ -140,7 +143,6 @@ namespace Template
                 shadowRay.O = nearest.I + shadowRay.D * 0.0001f;
                 shadowRay.t = 300;
 
-                Vector3 Color = Vector3.Zero;
 
                 var ndotl = Vector3.Dot(nearest.N, shadowRay.D);
                 if (ndotl > 0)
@@ -155,6 +157,8 @@ namespace Template
                             occluded = true;
                             break;
                         }
+                        else
+                            counter++;
                     }
 
                     if (!occluded)
@@ -162,13 +166,16 @@ namespace Template
                         //make the shadow
                         var dist = (l.pos - shadowRay.O).Length;
                         Color = (ndotl / (dist * dist)) * l.color * nearest.C * ndotl * ndotl;
+                        ColorRef += Color;
                     }
                     else
                     {
                         Color = new Vector3(0, 0, 0);
+                        ColorRef += Color;
                     }
                 }
-                return Color;
+                ColorRef /= counter;
+                return ColorRef;
             }
             return Vector3.Zero;
         }

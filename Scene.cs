@@ -35,7 +35,7 @@ namespace template
             //prims.Add(ceiling);
             //Create lightsource(s)
             light1 = new Light(new Vector3(0, 2, 3), new Vector3(200, 200, 200), 0.8f);
-            light2 = new Light(new Vector3(0, 2, 7), new Vector3(150, 150, 150), 0.8f);
+            light2 = new Light(new Vector3(-2, 2, 7), new Vector3(150, 150, 150), 0.8f);
             lights.Add(light1);
             lights.Add(light2);
 
