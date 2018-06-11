@@ -17,7 +17,7 @@ namespace template
         public Scene()
         {
             //Create all the objects in the scene
-            plane = new Plane(new Vector3(0, 1, 0), 3.0f, new Vector3(1.0f, 1.0f, 1.0f), false, true);
+            plane = new Plane(new Vector3(0, 1, 0), 3.0f, new Vector3(1.0f, 1.0f, 1.0f), true, true);
             sphere1 = new Sphere(new Vector3(0, 0, 7), 2f, new Vector3(1.0f, 0.0f, 0.0f), true, true);
             sphere2 = new Sphere(new Vector3(-5, 0, 7), 2f,new Vector3(0.0f, 1.0f, 0.0f), true, false);
             sphere3 = new Sphere(new Vector3(5, 0, 7), 2f, new Vector3(0.0f, 0.0f, 1.0f), true, false);

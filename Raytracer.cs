@@ -77,9 +77,9 @@ namespace Template
                             Color = CastShadowRay(nearest) * (1 - recursive/100);
                             //Create reflection ray
                             Ray reflectionRay;
-                            reflectionRay.O = nearest.I;
-                            reflectionRay.t = 300;
                             reflectionRay.D = ray.D - 2 * nearest.N * (Vector3.Dot(ray.D, nearest.N));
+                            reflectionRay.O = nearest.I + reflectionRay.D * 0.0001f;
+                            reflectionRay.t = 300;
 
                             foreach (Primitive p in prims)
                             {
